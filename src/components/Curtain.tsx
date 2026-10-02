@@ -21,10 +21,10 @@ export default function Curtain() {
             root.current?.remove()
           },
         })
-        .from('.cu .ch', { yPercent: 120, duration: 0.55, ease: 'expo.out', stagger: 0.035 })
-        .from('.cu-sub', { opacity: 0, y: 8, duration: 0.35 }, 0.3)
-        .to('.cu-inner', { yPercent: -40, opacity: 0, duration: 0.45, ease: 'power3.in' }, 0.75)
-        .to(root.current, { y: () => -(window.innerHeight + 100), duration: 0.75, ease: 'expo.inOut' }, 0.8)
+        .from('.cu .ch', { yPercent: 120, duration: 0.9, ease: 'expo.out', stagger: 0.05 })
+        .from('.cu-sub', { opacity: 0, y: 10, duration: 0.6 }, 0.5)
+        .to('.cu-inner', { yPercent: -40, opacity: 0, duration: 0.6, ease: 'power3.in' }, 1.25)
+        .to(root.current, { y: () => -(window.innerHeight + 200), duration: 1.1, ease: 'expo.inOut' }, 1.3)
     }, root)
     return () => {
       html.style.overflow = ''

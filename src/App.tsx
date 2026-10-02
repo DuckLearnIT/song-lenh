@@ -16,19 +16,10 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default function App() {
   useEffect(() => {
-    let rafId: number
-    const refresh = () => {
-      cancelAnimationFrame(rafId)
-      rafId = requestAnimationFrame(() => {
-        ScrollTrigger.refresh()
-      })
-    }
+    const refresh = () => ScrollTrigger.refresh()
     document.fonts?.ready.then(refresh)
     window.addEventListener('load', refresh)
-    return () => {
-      cancelAnimationFrame(rafId)
-      window.removeEventListener('load', refresh)
-    }
+    return () => window.removeEventListener('load', refresh)
   }, [])
 
   return (

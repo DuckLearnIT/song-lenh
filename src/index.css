@@ -2,7 +2,9 @@
 
 @font-face {
   font-family: 'NVN Yellost';
-  src: url('./assets/fonts/NVN-Yellost-Regular-VH.woff2') format('woff2');
+  src: url('./assets/fonts/NVN-Yellost-Regular-VH.woff2') format('woff2'),
+       url('./assets/fonts/NVN-Yellost-Regular-VH.woff') format('woff'),
+       url('./assets/fonts/NVN-Yellost-Regular-VH.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;

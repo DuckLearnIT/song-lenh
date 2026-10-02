@@ -17,16 +17,16 @@ export default function Hero() {
   useLayoutEffect(() => {
     if (reduced) return
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.85 })
-      tl.from('.sun', { scale: 0.3, opacity: 0, duration: 1.2 })
-        .from('.band', { yPercent: 100, duration: 1.1, stagger: 0.08 }, 0.1)
-        .from('.hero-title .ch', { yPercent: 115, duration: 0.95, stagger: 0.04 }, 0.12)
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 1.45 })
+      tl.from('.sun', { scale: 0.2, opacity: 0, duration: 1.8 })
+        .from('.band', { yPercent: 100, duration: 1.6, stagger: 0.12 }, 0.1)
+        .from('.hero-title .ch', { yPercent: 115, duration: 1.3, stagger: 0.05 }, 0.15)
         .from(
           '.hero-card',
-          { yPercent: 70, opacity: 0, rotate: 0, duration: 1.1, stagger: 0.08 },
-          0.25,
+          { yPercent: 70, opacity: 0, rotate: 0, duration: 1.5, stagger: 0.12 },
+          0.35,
         )
-        .from('.hero-fade', { opacity: 0, y: 14, duration: 0.8, stagger: 0.08 }, 0.6)
+        .from('.hero-fade', { opacity: 0, y: 16, duration: 1, stagger: 0.1 }, 0.9)
 
       // scroll: title drifts apart, fan lifts
       gsap.to('.title-a', {
