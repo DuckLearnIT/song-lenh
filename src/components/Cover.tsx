@@ -1,9 +1,8 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import cover from '../assets/bia-thuy-tran.webp'
 import { cards } from '../data/cards'
 import { strategies } from '../data/strategies'
-import { createBoxScene } from './boxScene'
 import useReducedMotion from '../hooks/useReducedMotion'
 
 const alt = 'Bìa board game Thủy trận Bạch Đằng: thuyền nhẹ cầm cờ len giữa bãi cọc nhọn, chiến thuyền buồm đỏ phía xa'
@@ -15,51 +14,71 @@ export default function Cover() {
   const [active, setActive] = useState<number | null>(null)
   const [open, setOpen] = useState(false)
 
-  useLayoutEffect(() => {
-    if (reduced || !canvas.current) return
-    const box = createBoxScene({
-      canvas: canvas.current,
-      cover,
-      cards: cards.map((c) => c.image),
-      extra: strategies.map((k) => k.image),
-      onHover: setActive,
-    })
-    const st = box.state
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top top',
-          end: '+=820%',
-          pin: true,
-          scrub: 0.6,
-          onUpdate: (t) => setOpen(t.progress > 0.58 && t.progress < 0.7),
-        },
+  useEffect(() => {
+    if (reduced || !canvas.current || !root.current) return
+
+    let disposed = false
+    let box: any = null
+    let ctx: gsap.Context | null = null
+
+    // Lazy load Three.js scene so it never blocks the initial render or TBT
+    const init = async () => {
+      const { createBoxScene } = await import('./boxScene')
+      if (disposed || !canvas.current || !root.current) return
+
+      box = createBoxScene({
+        canvas: canvas.current,
+        cover,
+        cards: cards.map((c) => c.image),
+        extra: strategies.map((k) => k.image),
+        onHover: setActive,
       })
-      tl.fromTo(st, { elev: 1.3, yaw: -0.5, zoom: 0.9 }, { elev: 1.0, yaw: -0.25, zoom: 1, ease: 'power3.out', duration: 1 }, 0)
-      tl.to(st, { lift: 7, lidTilt: -0.1, ease: 'power2.inOut', duration: 1.4 }, 1)
-      tl.to(st, { rise: 1, elev: 0.3, yaw: 0, zoom: 1.25, shift: 0.9, ease: 'power2.inOut', duration: 1.4 }, 2.2)
-      tl.to(st, { drop: 8, ease: 'power2.in', duration: 1 }, 3.4)
-      st.fan.forEach((_, i) => tl.to(st.fan, { [i]: 1, ease: 'power2.out', duration: 0.9 }, 4.2 + i * 0.1))
-      tl.fromTo('.bx-side', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6 }, 5.2)
-      tl.to({}, { duration: 0.6 })
-      tl.to('.bx-side', { opacity: 0, x: -30, duration: 0.5 }, '>')
-      const t0 = tl.duration() - 0.5
-      tl.to(st, { swap: 1, zoom: 1.1, elev: 0.26, shift: 0, ease: 'power2.inOut', duration: 1.3 }, t0)
-      st.fan2.forEach((_, i) => tl.to(st.fan2, { [i]: 1, ease: 'power2.out', duration: 0.9 }, t0 + 0.7 + i * 0.1))
-      tl.to(root.current, { backgroundColor: '#e6cfa6', duration: 1.2, ease: 'none' }, '>-0.5')
-      tl.to({}, { duration: 0.4 })
-    }, root)
+
+      const st = box.state
+      ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top top',
+            end: '+=820%',
+            pin: true,
+            scrub: 0.6,
+            onUpdate: (t) => setOpen(t.progress > 0.58 && t.progress < 0.7),
+          },
+        })
+        tl.fromTo(st, { elev: 1.3, yaw: -0.5, zoom: 0.9 }, { elev: 1.0, yaw: -0.25, zoom: 1, ease: 'power3.out', duration: 1 }, 0)
+        tl.to(st, { lift: 7, lidTilt: -0.1, ease: 'power2.inOut', duration: 1.4 }, 1)
+        tl.to(st, { rise: 1, elev: 0.3, yaw: 0, zoom: 1.25, shift: 0.9, ease: 'power2.inOut', duration: 1.4 }, 2.2)
+        tl.to(st, { drop: 8, ease: 'power2.in', duration: 1 }, 3.4)
+        st.fan.forEach((_, i) => tl.to(st.fan, { [i]: 1, ease: 'power2.out', duration: 0.9 }, 4.2 + i * 0.1))
+        tl.fromTo('.bx-side', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6 }, 5.2)
+        tl.to({}, { duration: 0.6 })
+        tl.to('.bx-side', { opacity: 0, x: -30, duration: 0.5 }, '>')
+        const t0 = tl.duration() - 0.5
+        tl.to(st, { swap: 1, zoom: 1.1, elev: 0.26, shift: 0, ease: 'power2.inOut', duration: 1.3 }, t0)
+        st.fan2.forEach((_, i) => tl.to(st.fan2, { [i]: 1, ease: 'power2.out', duration: 0.9 }, t0 + 0.7 + i * 0.1))
+        tl.to(root.current, { backgroundColor: '#e6cfa6', duration: 1.2, ease: 'none' }, '>-0.5')
+        tl.to({}, { duration: 0.4 })
+      }, root)
+    }
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => init(), { timeout: 1500 })
+    } else {
+      setTimeout(init, 500)
+    }
+
     return () => {
-      ctx.revert()
-      box.dispose()
+      disposed = true
+      ctx?.revert()
+      box?.dispose()
     }
   }, [reduced])
 
   if (reduced) {
     return (
       <section className="bg-[#ffb627] px-4 py-16 text-ink" aria-label="Bìa hộp">
-        <img src={cover} alt={alt} className="mx-auto w-full max-w-xl" />
+        <img src={cover} alt={alt} loading="lazy" decoding="async" className="mx-auto w-full max-w-xl" />
       </section>
     )
   }

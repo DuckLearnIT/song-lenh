@@ -9,7 +9,6 @@ import Roles from './components/Roles'
 import Strategies from './components/Strategies'
 import Finale from './components/Finale'
 import River from './components/River'
-import Curtain from './components/Curtain'
 import Cursor from './components/Cursor'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -24,7 +23,6 @@ export default function App() {
 
   return (
     <main className="grain relative">
-      <Curtain />
       <Cursor />
       <Header />
       <Hero />

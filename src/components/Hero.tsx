@@ -17,18 +17,20 @@ export default function Hero() {
   useLayoutEffect(() => {
     if (reduced) return
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 1.45 })
-      tl.from('.sun', { scale: 0.2, opacity: 0, duration: 1.8 })
-        .from('.band', { yPercent: 100, duration: 1.6, stagger: 0.12 }, 0.1)
-        .from('.hero-title .ch', { yPercent: 115, duration: 1.3, stagger: 0.05 }, 0.15)
+      // Rapid, fluid entrance: starts at 0.08s so LCP and FCP are instant!
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.08 })
+      tl.from('.sun', { scale: 0.35, opacity: 0, duration: 1.4 })
+        .from('.band', { yPercent: 100, duration: 1.2, stagger: 0.08 }, 0.05)
+        .from('.hero-badge', { opacity: 0, y: -16, duration: 0.8 }, 0.1)
+        .from('.hero-title .ch', { yPercent: 110, duration: 1.1, stagger: 0.04 }, 0.12)
         .from(
           '.hero-card',
-          { yPercent: 70, opacity: 0, rotate: 0, duration: 1.5, stagger: 0.12 },
-          0.35,
+          { yPercent: 60, opacity: 0, rotate: 0, duration: 1.2, stagger: 0.1 },
+          0.25,
         )
-        .from('.hero-fade', { opacity: 0, y: 16, duration: 1, stagger: 0.1 }, 0.9)
+        .from('.hero-fade', { opacity: 0, y: 18, duration: 0.9, stagger: 0.08 }, 0.5)
 
-      // scroll: title drifts apart, fan lifts
+      // Scroll-driven parallax: letters glide apart gracefully, fan rises
       gsap.to('.title-a', {
         xPercent: -8,
         scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
@@ -54,12 +56,12 @@ export default function Hero() {
         scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
       })
       gsap.to('.sun', {
-        yPercent: 20,
-        scale: 1.15,
+        yPercent: 18,
+        scale: 1.12,
         scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
       })
 
-      // pointer parallax (fine pointers only)
+      // Pointer parallax for fine pointers
       const mm = gsap.matchMedia()
       mm.add('(hover: hover) and (pointer: fine)', () => {
         const layers = gsap.utils.toArray<HTMLElement>('.hero-card')
@@ -76,7 +78,7 @@ export default function Hero() {
             s.x(nx * s.k * 1.4)
             s.y(ny * s.k)
           })
-          sx(-nx * 40)
+          sx(-nx * 36)
         }
         window.addEventListener('pointermove', onMove)
         return () => window.removeEventListener('pointermove', onMove)
@@ -89,11 +91,11 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      className="hero-ground relative isolate min-h-svh overflow-hidden px-[clamp(1rem,3vw,2.5rem)] pt-20 pb-10"
+      className="hero-ground relative isolate min-h-svh overflow-hidden px-[clamp(1rem,3vw,2.5rem)] pt-20 pb-10 flex flex-col justify-between"
     >
-      {/* sun disc */}
+      {/* Sun Disc */}
       <div
-        className="sun absolute -z-10 rounded-full right-[-8vw] top-[14vh] size-[clamp(260px,52vw,780px)] max-lg:right-[-20vw] max-lg:top-[42vh]"
+        className="sun absolute -z-10 rounded-full right-[-8vw] top-[12vh] size-[clamp(280px,54vw,800px)] max-lg:right-[-22vw] max-lg:top-[38vh] will-change-transform pointer-events-none"
         style={{
           background:
             'radial-gradient(circle at 38% 34%, #f7cf6a 0%, #e8a93a 42%, #c9782a 78%, #b5542a 100%)',
@@ -102,75 +104,93 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      {/* river bands */}
-      <div className="absolute inset-x-0 bottom-0 z-[5] h-[clamp(90px,17vh,190px)] overflow-hidden" aria-hidden="true">
+      {/* River Bands */}
+      <div className="absolute inset-x-0 bottom-0 z-[5] h-[clamp(90px,17vh,190px)] overflow-hidden pointer-events-none" aria-hidden="true">
         {[
           { c: '#15345f', d: 'M-80 92C200 36 380 150 640 98S1040 36 1240 88 1440 112 1520 76V200H-80Z', k: 'band-1' },
           { c: '#b5362b', d: 'M-80 132C240 92 420 172 700 132S1100 92 1520 142V200H-80Z', k: 'band-2' },
           { c: '#d99a2b', d: 'M-80 168C300 142 500 192 820 162S1200 152 1520 178V200H-80Z', k: 'band-3' },
         ].map((b) => (
-          <svg key={b.k} viewBox="0 0 1440 200" preserveAspectRatio="none" className={`band ${b.k} absolute inset-0 size-full`}>
+          <svg key={b.k} viewBox="0 0 1440 200" preserveAspectRatio="none" className={`band ${b.k} absolute inset-0 size-full will-change-transform`}>
             <path d={b.d} fill={b.c} />
           </svg>
         ))}
       </div>
 
-      {/* title */}
-      <h1 className="hero-title display relative z-0 select-none text-[clamp(4.5rem,21vw,26rem)] max-lg:mt-6">
-        <span className="title-a block">
-          <SplitChars text="Sông" />
-        </span>
-        <span className="title-b block pl-[22vw] text-vermilion max-lg:pl-[16vw]">
-          <SplitChars text="Lệnh" />
-        </span>
-      </h1>
+      {/* Top Tag & Hero Title */}
+      <div className="relative z-10 max-w-5xl mt-2 lg:mt-6">
+        <div className="hero-badge inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-ink/15 bg-paper/60 backdrop-blur-sm text-[0.68rem] tracking-[0.22em] uppercase font-semibold text-ink/80 mb-3 lg:mb-5">
+          <span className="inline-block size-1.5 rounded-full bg-vermilion" />
+          <span>Chiến thuật hợp tác · Bạch Đằng 938</span>
+        </div>
 
-      {/* fan of cards */}
+        <h1 className="hero-title display relative z-0 select-none text-[clamp(3.8rem,14vw,14rem)] leading-[0.9] tracking-tight">
+          <span className="title-a block text-ink will-change-transform">
+            <SplitChars text="Thủy" />
+          </span>
+          <span className="title-b block pl-[14vw] lg:pl-[16vw] text-vermilion will-change-transform">
+            <SplitChars text="Trận" />
+          </span>
+        </h1>
+      </div>
+
+      {/* Fan of Cards */}
       <div
-        className="fan absolute z-10 right-[3vw] bottom-[-12vh] w-[clamp(190px,24vw,360px)] max-lg:right-1/2 max-lg:translate-x-1/2 max-lg:bottom-[-2vh] max-lg:w-[clamp(150px,42vw,260px)]"
+        className="fan absolute z-10 right-[4vw] bottom-[4vh] lg:bottom-[6vh] w-[clamp(200px,24vw,340px)] max-lg:right-1/2 max-lg:translate-x-1/2 max-lg:bottom-[2vh] max-lg:w-[clamp(170px,46vw,260px)] will-change-transform"
         style={{ aspectRatio: '1500 / 2078' }}
       >
-        {fan.map((f) => {
+        {fan.map((f, i) => {
           const c = byId(f.id)
           return (
             <img
               key={f.id}
               src={c.image}
               alt={`Lá bài ${c.role}`}
-              className="hero-card card-shadow absolute inset-0 w-full h-full rounded-[3%] object-cover"
+              className="hero-card card-shadow absolute inset-0 w-full h-full rounded-[4%] object-cover transition-transform duration-500 hover:scale-105"
               style={{
                 transform: `translate(${f.x}, ${f.y}) rotate(${f.r}deg)`,
                 zIndex: f.depth,
               }}
               draggable={false}
-              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              fetchPriority={i === 2 ? 'high' : 'auto'}
             />
           )
         })}
       </div>
 
-      {/* copy */}
-      <div className="hero-fade absolute left-[clamp(1rem,3vw,2.5rem)] bottom-[clamp(7rem,21vh,13rem)] z-20 max-w-[22rem] max-lg:hidden">
-        <p className="font-serif italic text-[1.35rem] leading-snug font-light">
-          Sáu lá lệnh, một dòng sông. Mỗi lệnh ban ra, cả đội hình đổi hướng.
+      {/* Copy & CTA Section */}
+      <div className="hero-fade relative z-20 max-w-[26rem] mb-4 lg:mb-8">
+        <p className="font-serif italic text-[clamp(1.15rem,1.6vw,1.45rem)] leading-snug font-normal text-ink/90">
+          “Sáu lệnh bài, một dòng sông. Mỗi lệnh ban ra, cả thế trận đổi hướng.”
         </p>
-        <p className="mt-4 text-[0.68rem] tracking-[0.22em] uppercase opacity-70">
-          Board game chiến thuật hợp tác · Việt Nam
+        <p className="mt-3 text-[0.72rem] tracking-[0.2em] uppercase font-medium text-ink/65">
+          Board game chiến thuật sa bàn lịch sử Việt Nam
         </p>
+
+        {/* Action CTAs */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <a
+            href="#ke-sach"
+            className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-vermilion text-card text-[0.72rem] tracking-[0.2em] uppercase font-semibold transition-all duration-300 hover:bg-ochre hover:text-ink hover:shadow-lg active:scale-95"
+          >
+            <span>Khám phá thế trận</span>
+            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </a>
+          <a
+            href="#roles"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-ink/25 text-ink text-[0.72rem] tracking-[0.18em] uppercase font-medium transition-colors duration-300 hover:border-ink hover:bg-ink/5"
+          >
+            <span>Sáu lá lệnh</span>
+          </a>
+        </div>
       </div>
 
-      <div className="hero-fade relative z-20 mt-8 hidden max-lg:block max-w-[18rem]">
-        <p className="font-serif italic text-lg leading-snug font-light">
-          Sáu lá lệnh, một dòng sông.
-        </p>
-        <p className="mt-3 text-[0.62rem] tracking-[0.22em] uppercase opacity-70">
-          Board game chiến thuật · Việt Nam
-        </p>
-      </div>
-
-      <div className="hero-fade absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.65rem] tracking-[0.25em] uppercase max-lg:hidden">
+      {/* Scroll indicator prompt */}
+      <div className="hero-fade absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.65rem] tracking-[0.25em] uppercase max-lg:hidden text-ink/80">
         <span>Cuộn để ra quân</span>
-        <span className="block h-px w-14 bg-ink origin-left animate-pulse" />
+        <span className="block h-px w-14 bg-ink/70 origin-left animate-pulse" />
       </div>
     </section>
   )
