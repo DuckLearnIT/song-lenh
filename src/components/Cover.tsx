@@ -69,7 +69,7 @@ export default function Cover() {
       }
     }
 
-    // Lazy load Three.js box scene on first user scroll or when approaching viewport
+    // Lazy load Three.js box scene: on user interaction, when visible, or during idle time
     const onScrollOrTouch = () => {
       initScene()
       window.removeEventListener('scroll', onScrollOrTouch)
@@ -85,16 +85,26 @@ export default function Cover() {
           observer.disconnect()
         }
       },
-      { rootMargin: '150px' }
+      { rootMargin: '0px' }
     )
 
     observer.observe(root.current)
+
+    // Fallback: load during idle time after main thread finishes critical rendering
+    const idleId = typeof window !== 'undefined' && 'requestIdleCallback' in window
+      ? (window as any).requestIdleCallback(() => initScene(), { timeout: 4000 })
+      : setTimeout(initScene, 3000)
 
     return () => {
       isDisposed = true
       window.removeEventListener('scroll', onScrollOrTouch)
       window.removeEventListener('touchstart', onScrollOrTouch)
       observer.disconnect()
+      if (typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        ;(window as any).cancelIdleCallback(idleId)
+      } else {
+        clearTimeout(idleId)
+      }
       ctxInstance?.revert()
       boxInstance?.dispose()
     }
