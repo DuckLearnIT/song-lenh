@@ -16,6 +16,22 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/three')) {
+              return 'three-vendor'
+            }
+            if (id.includes('node_modules/gsap')) {
+              return 'gsap-vendor'
+            }
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'react-vendor'
+            }
+          },
+        },
+      },
     },
     plugins: [
 react(),

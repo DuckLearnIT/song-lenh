@@ -5,7 +5,6 @@ import { strategies as list } from '../data/strategies'
 import useReducedMotion from '../hooks/useReducedMotion'
 
 const n = list.length
-const STEP = 360 / n
 
 function Lines({ s }: { s: (typeof list)[number] }) {
   return (
@@ -13,7 +12,9 @@ function Lines({ s }: { s: (typeof list)[number] }) {
       {s.lines.map((l, i) => (
         <p key={i} className="text-[clamp(0.85rem,1.05vw,1.05rem)] leading-relaxed max-w-[34rem]">
           {l.label && (
-            <span className="display mr-2 !font-bold !tracking-[0.04em] text-[1.15em] align-baseline">{l.label}.</span>
+            <span className="display mr-2 !font-bold !tracking-[0.04em] text-[1.15em] align-baseline">
+              {l.label}.
+            </span>
           )}
           <span className="opacity-90">{l.text}</span>
         </p>
@@ -24,91 +25,115 @@ function Lines({ s }: { s: (typeof list)[number] }) {
 
 export default function Strategies() {
   const root = useRef<HTMLElement>(null)
-  const ring = useRef<HTMLDivElement>(null)
   const trigger = useRef<ScrollTrigger | null>(null)
   const [active, setActive] = useState(0)
   const reduced = useReducedMotion()
 
   useLayoutEffect(() => {
     if (reduced) return
+
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>('.ks-card')
-      const radius = () => cards[0].offsetWidth * 1.32
+      const proxy = { k: 0 }
+      let lastActive = -1
 
-      gsap.set(ring.current, { '--r': '0px', scale: 0.55, rotationY: -40 })
-
-      const mm = gsap.matchMedia()
-      mm.add('(hover: hover) and (pointer: fine)', () => {
-        const rx = gsap.quickTo('.ks-scene', 'rotationX', { duration: 1.1, ease: 'power3' })
-        const ry = gsap.quickTo('.ks-scene', 'rotationY', { duration: 1.1, ease: 'power3' })
-        const move = (e: PointerEvent) => {
-          ry((e.clientX / window.innerWidth - 0.5) * 16)
-          rx(-(e.clientY / window.innerHeight - 0.5) * 10)
-        }
-        window.addEventListener('pointermove', move)
-        return () => window.removeEventListener('pointermove', move)
-      })
-
-      let last = -1
-      const paint = (k: number) => {
+      // Render cards in panoramic stage without horizontal compression
+      const renderStage = (k: number) => {
         cards.forEach((el, i) => {
-          let d = (((i - k) % n) + n) % n
-          if (d > n / 2) d -= n
-          const a = Math.min(Math.abs(d), 2)
-          el.style.filter = `brightness(${1 - a * 0.2}) saturate(${1 - a * 0.15})`
+          const d = i - k
+          const absD = Math.abs(d)
+
+          // Smooth horizontal translation without squishing
+          const xPercent = d * 64
+          // Mild 3D rotation (max 18deg) to preserve full width without foreshortening
+          const rotY = Math.sign(d) * -Math.min(18, absD * 16)
+          const rotZ = Math.sign(d) * Math.min(2.5, absD * 2)
+          const zPx = -absD * 50
+          const scale = Math.max(0.82, 1.05 - absD * 0.09)
+          const opacity = absD > 2.8 ? 0 : Math.max(0.4, 1 - absD * 0.22)
+          const brightness = Math.max(0.65, 1 - absD * 0.15)
+          const zIndex = Math.round(50 - absD * 10)
+
+          el.style.transform = `translate3d(${xPercent}%, 0, ${zPx}px) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${scale})`
+          el.style.opacity = `${opacity}`
+          el.style.zIndex = `${zIndex}`
+          el.style.filter = `brightness(${brightness})`
+          el.style.pointerEvents = absD < 1.5 ? 'auto' : 'none'
         })
-        const idx = Math.round(k)
-        if (idx !== last) {
-          last = idx
-          setActive(idx)
+
+        const activeIdx = Math.round(Math.min(Math.max(k, 0), n - 1))
+        if (activeIdx !== lastActive) {
+          lastActive = activeIdx
+          setActive(activeIdx)
         }
       }
 
+      // Pointer parallax for subtle depth
+      const mm = gsap.matchMedia()
+      mm.add('(hover: hover) and (pointer: fine)', () => {
+        const stageTilt = gsap.quickTo('.ks-stage', 'rotationY', { duration: 1.2, ease: 'power3' })
+        const onMove = (e: PointerEvent) => {
+          const nx = e.clientX / window.innerWidth - 0.5
+          stageTilt(nx * 8)
+        }
+        window.addEventListener('pointermove', onMove)
+        return () => window.removeEventListener('pointermove', onMove)
+      })
+
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
-        onUpdate: () => paint(Math.min(Math.max(tl.time() - 1, 0), n - 1)),
         scrollTrigger: {
           trigger: root.current,
           start: 'top top',
-          end: () => `+=${(n + 0.5) * window.innerHeight * 0.9}`,
+          end: () => `+=${(n - 1) * window.innerHeight * 0.95}`,
           pin: true,
-          scrub: 0.7,
+          scrub: 0.6,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           snap: {
-            snapTo: (v: number) => {
-              const time = v * n
-              return (time < 1 ? Math.round(time) : 1 + Math.round(time - 1)) / n
-            },
-            duration: { min: 0.25, max: 0.7 },
+            snapTo: 1 / (n - 1),
+            duration: { min: 0.25, max: 0.6 },
             ease: 'power2.inOut',
           },
         },
       })
       trigger.current = tl.scrollTrigger as ScrollTrigger
 
-      // opening: the seven cards unfold from one point into a ring
-      tl.to(ring.current, { '--r': () => radius() + 'px', scale: 1, rotationY: 0, duration: 1, ease: 'expo.out' }, 0)
-      tl.fromTo(
-        root.current,
-        { backgroundColor: '#1a3a26', '--fg': '#f6e9d7' },
-        { backgroundColor: list[0].bg, '--fg': list[0].fg, duration: 1 },
-        0,
-      )
-
+      // Animate progress smoothly through the cards and interpolate background themes
       for (let i = 1; i < n; i++) {
-        tl.to(ring.current, { rotationY: -i * STEP, duration: 1, ease: 'power2.inOut' }, i)
-        tl.to(root.current, { backgroundColor: list[i].bg, '--fg': list[i].fg, duration: 1 }, i)
+        const segStart = i - 1
+        tl.to(
+          proxy,
+          {
+            k: i,
+            duration: 1,
+            ease: 'power1.inOut',
+            onUpdate: () => renderStage(proxy.k),
+          },
+          segStart,
+        )
+        tl.to(
+          root.current,
+          {
+            backgroundColor: list[i].bg,
+            duration: 1,
+            ease: 'power1.inOut',
+          },
+          segStart,
+        )
       }
-      paint(0)
+
+      // Initial render at position 0
+      renderStage(0)
     }, root)
+
     return () => ctx.revert()
   }, [reduced])
 
   const jump = (j: number) => {
     const st = trigger.current
     if (!st) return
-    const p = (1 + j) / n
+    const p = j / (n - 1)
     window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'smooth' })
   }
 
@@ -119,7 +144,13 @@ export default function Strategies() {
         <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((s) => (
             <article key={s.id} className="rounded-2xl p-6" style={{ background: s.bg, color: s.fg }}>
-              <img src={s.image} alt={`Lá bài ${s.name}`} className="card-shadow w-full rounded-[3%]" />
+              <img
+                src={s.image}
+                alt={`Lá bài ${s.name}`}
+                loading="lazy"
+                decoding="async"
+                className="card-shadow w-full rounded-[3%]"
+              />
               <h3 className="display mt-5 text-3xl">{s.name}</h3>
               <div className="mt-3">
                 <Lines s={s} />
@@ -137,33 +168,36 @@ export default function Strategies() {
     <section
       ref={root}
       id="ke-sach"
-      className="relative h-svh overflow-hidden"
-      style={{ background: '#1a3a26', color: 'var(--fg)', ['--fg' as string]: '#f6e9d7' }}
+      className="relative h-svh overflow-hidden transition-colors duration-700 select-none"
+      style={{ background: list[0].bg, color: cur.fg }}
     >
-      {/* giant outlined name behind the ring */}
+      {/* Giant outlined title behind the cards */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-[30%] lg:top-[26%] z-0 flex justify-center overflow-hidden"
+        className="pointer-events-none absolute inset-x-0 top-[22%] lg:top-[18%] z-0 flex justify-center overflow-hidden"
       >
         <span
           key={cur.id}
-          className="ks-name display whitespace-nowrap text-[clamp(4.5rem,21vw,24rem)] leading-none"
-          style={{ color: 'transparent', WebkitTextStroke: '2px var(--fg)', opacity: 0.55 }}
+          className="ks-name display whitespace-nowrap text-[clamp(4.5rem,18vw,22rem)] leading-none transition-all duration-500"
+          style={{
+            color: 'transparent',
+            WebkitTextStroke: '1.5px currentColor',
+            opacity: 0.35,
+          }}
         >
           {cur.name}
         </span>
       </div>
 
-      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.68rem] tracking-[0.3em] uppercase">
+      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.68rem] tracking-[0.3em] uppercase opacity-85">
         02 — Bảy kế sách
       </p>
 
-      {/* 3D ring */}
-      <div className="absolute inset-x-0 top-[12%] bottom-[30%] lg:bottom-[22%] z-10 grid place-items-center [perspective:1800px]">
-        <div className="ks-scene relative [transform-style:preserve-3d]">
+      {/* Spacious 3D Panoramic Stage */}
+      <div className="absolute inset-x-0 top-[12%] bottom-[28%] lg:bottom-[20%] z-10 flex items-center justify-center [perspective:1400px]">
+        <div className="ks-stage relative flex items-center justify-center [transform-style:preserve-3d]">
           <div
-            ref={ring}
-            className="relative w-[min(44vw,27svh)] lg:w-[min(20vw,31svh)] [transform-style:preserve-3d]"
+            className="relative w-[min(54vw,34svh)] sm:w-[min(44vw,38svh)] lg:w-[min(23vw,46svh)] max-w-[340px]"
             style={{ aspectRatio: '1500 / 2078' }}
           >
             {list.map((s, i) => (
@@ -172,15 +206,21 @@ export default function Strategies() {
                 src={s.image}
                 alt={`Lá kế sách ${s.name}`}
                 draggable={false}
-                className="ks-card card-shadow absolute inset-0 size-full rounded-[3%] object-cover"
-                style={{ transform: `rotateY(${i * STEP}deg) translateZ(var(--r))` }}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                onClick={() => jump(i)}
+                className="ks-card card-shadow absolute inset-0 size-full rounded-[4%] object-cover cursor-pointer transition-[filter,box-shadow] duration-300 will-change-transform"
+                style={{
+                  aspectRatio: '1500 / 2078',
+                  transform: 'translate3d(0, 0, 0)',
+                }}
               />
             ))}
           </div>
         </div>
       </div>
 
-      {/* info */}
+      {/* Strategy Information & Tab Switcher */}
       <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-4 px-[clamp(1rem,3vw,2.5rem)] pb-6 lg:flex-row lg:items-end lg:justify-between lg:pb-10">
         <div key={cur.id} className="ks-info max-w-xl">
           <p className="text-[0.68rem] tracking-[0.3em] uppercase opacity-80">{cur.tag}</p>
@@ -196,12 +236,13 @@ export default function Strategies() {
               aria-selected={i === active}
               aria-label={s.name}
               onClick={() => jump(i)}
-              className="display grid size-9 place-items-center rounded-full border text-sm !font-bold transition-all duration-500"
+              className="display grid size-9 place-items-center rounded-full border text-sm !font-bold transition-all duration-300 cursor-pointer"
               style={{
-                borderColor: 'var(--fg)',
-                background: i === active ? 'var(--fg)' : 'transparent',
-                color: i === active ? cur.bg : 'var(--fg)',
-                transform: i === active ? 'scale(1.2)' : undefined,
+                borderColor: 'currentColor',
+                background: i === active ? 'currentColor' : 'transparent',
+                color: i === active ? cur.bg : 'currentColor',
+                transform: i === active ? 'scale(1.18)' : 'scale(1)',
+                opacity: i === active ? 1 : 0.65,
               }}
             >
               {String(i + 1).padStart(2, '0')}
