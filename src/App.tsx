@@ -9,20 +9,31 @@ import Roles from './components/Roles'
 import Strategies from './components/Strategies'
 import Finale from './components/Finale'
 import River from './components/River'
+import Curtain from './components/Curtain'
 import Cursor from './components/Cursor'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function App() {
   useEffect(() => {
-    const refresh = () => ScrollTrigger.refresh()
+    let rafId: number
+    const refresh = () => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+      })
+    }
     document.fonts?.ready.then(refresh)
     window.addEventListener('load', refresh)
-    return () => window.removeEventListener('load', refresh)
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('load', refresh)
+    }
   }, [])
 
   return (
     <main className="grain relative">
+      <Curtain />
       <Cursor />
       <Header />
       <Hero />

@@ -137,7 +137,7 @@ export default function Finale() {
       </div>
 
       <footer className="relative z-10 flex justify-between gap-4 px-[clamp(1rem,3vw,2.5rem)] py-5 text-[0.62rem] tracking-[0.22em] uppercase text-card/50 bg-ink">
-        <span>Thủy Trận — board game chiến thuật</span>
+        <span>Sông Lệnh — board game chiến thuật</span>
         <span>Việt Nam · 2026</span>
       </footer>
     </section>
