@@ -94,13 +94,13 @@ export default function Finale() {
         </h2>
 
         <div className="mt-10 lg:mt-0 lg:absolute lg:right-[clamp(1rem,3vw,2.5rem)] lg:top-[clamp(7rem,14vw,13rem)] lg:w-[21rem] flex flex-col gap-7 items-start">
-          <p className="f-fade font-serif italic font-light text-[clamp(1.15rem,1.6vw,1.5rem)] leading-snug text-card/80">
+          <p className="f-fade font-serif italic font-normal text-[clamp(1.2rem,1.65vw,1.55rem)] leading-relaxed text-card/90">
             Rút một lá. Ban một lệnh. Xem cả dòng sông đổi hướng.
           </p>
           <a
             ref={btn}
             href="#top"
-            className="f-fade group relative inline-flex items-center gap-4 rounded-full bg-vermilion px-8 py-5 text-[0.75rem] font-medium tracking-[0.25em] uppercase text-card transition-colors duration-500 hover:bg-ochre hover:text-ink"
+            className="f-fade group relative inline-flex items-center gap-4 rounded-full bg-vermilion px-8 py-5 text-[0.82rem] font-medium tracking-[0.25em] uppercase text-card transition-colors duration-500 hover:bg-ochre hover:text-ink"
           >
             Gia nhập hàng quân
             <span className="inline-block size-2 rotate-45 bg-current transition-transform duration-500 group-hover:rotate-[225deg]" />
@@ -130,13 +130,14 @@ export default function Finale() {
                 }
                 draggable={false}
                 loading="lazy"
+                decoding="async"
               />
             </div>
           )
         })}
       </div>
 
-      <footer className="relative z-10 flex justify-between gap-4 px-[clamp(1rem,3vw,2.5rem)] py-5 text-[0.62rem] tracking-[0.22em] uppercase text-card/50 bg-ink">
+      <footer className="relative z-10 flex justify-between gap-4 px-[clamp(1rem,3vw,2.5rem)] py-5 text-[0.74rem] font-medium tracking-[0.22em] uppercase text-card/60 bg-ink">
         <span>Sông Lệnh — board game chiến thuật</span>
         <span>Việt Nam · 2026</span>
       </footer>

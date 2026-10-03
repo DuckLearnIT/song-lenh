@@ -10,13 +10,13 @@ function Lines({ s }: { s: (typeof list)[number] }) {
   return (
     <div className="space-y-3">
       {s.lines.map((l, i) => (
-        <p key={i} className="text-[clamp(0.85rem,1.05vw,1.05rem)] leading-relaxed max-w-[34rem]">
+        <p key={i} className="text-[clamp(0.96rem,1.15vw,1.1rem)] leading-relaxed max-w-[34rem] font-normal">
           {l.label && (
             <span className="display mr-2 !font-bold !tracking-[0.04em] text-[1.15em] align-baseline">
               {l.label}.
             </span>
           )}
-          <span className="opacity-90">{l.text}</span>
+          <span className="opacity-95">{l.text}</span>
         </p>
       ))}
     </div>
@@ -189,7 +189,7 @@ export default function Strategies() {
         </span>
       </div>
 
-      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.68rem] tracking-[0.3em] uppercase opacity-85">
+      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.76rem] font-medium tracking-[0.25em] uppercase opacity-90">
         02 — Bảy kế sách
       </p>
 
@@ -223,7 +223,7 @@ export default function Strategies() {
       {/* Strategy Information & Tab Switcher */}
       <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-4 px-[clamp(1rem,3vw,2.5rem)] pb-6 lg:flex-row lg:items-end lg:justify-between lg:pb-10">
         <div key={cur.id} className="ks-info max-w-xl">
-          <p className="text-[0.68rem] tracking-[0.3em] uppercase opacity-80">{cur.tag}</p>
+          <p className="text-[0.76rem] font-medium tracking-[0.25em] uppercase opacity-85">{cur.tag}</p>
           <h3 className="display mt-1 mb-3 text-[clamp(1.8rem,3.6vw,3.4rem)] !font-bold">{cur.name}</h3>
           <Lines s={cur} />
         </div>

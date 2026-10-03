@@ -9,7 +9,7 @@ export default function Header() {
       </a>
       <a
         href="#nhan-lenh"
-        className="pointer-events-auto group flex items-center gap-2 text-[0.7rem] tracking-[0.22em] uppercase"
+        className="pointer-events-auto group flex items-center gap-2 text-[0.8rem] font-medium tracking-[0.22em] uppercase"
       >
         <span>Nhận lệnh</span>
         <span className="inline-block size-2 rotate-45 bg-current transition-transform duration-500 group-hover:rotate-[225deg] group-hover:scale-150" />

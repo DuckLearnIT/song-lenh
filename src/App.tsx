@@ -13,6 +13,10 @@ import Curtain from './components/Curtain'
 import Cursor from './components/Cursor'
 
 gsap.registerPlugin(ScrollTrigger)
+if (typeof window !== 'undefined') {
+  ;(window as any).ScrollTrigger = ScrollTrigger
+  ;(window as any).gsap = gsap
+}
 
 export default function App() {
   useEffect(() => {

@@ -50,6 +50,7 @@ export default function Cover() {
       tl.to(root.current, { backgroundColor: '#e6cfa6', duration: 1.2, ease: 'none' }, '>-0.5')
       tl.to({}, { duration: 0.4 })
     }, root)
+
     return () => {
       ctx.revert()
       box.dispose()
@@ -72,15 +73,15 @@ export default function Cover() {
       aria-label="Hộp Thủy trận Bạch Đằng"
     >
       <div className="bx-side absolute top-1/2 left-[clamp(1rem,3vw,2.5rem)] z-20 hidden max-w-[19rem] -translate-y-1/2 lg:block">
-        <p className="text-[0.68rem] tracking-[0.3em] uppercase">
+        <p className="text-[0.76rem] font-medium tracking-[0.25em] uppercase">
           <span className="text-vermilion">00</span> — Trong hộp
         </p>
         {c ? (
           <div key={c.id} className="ks-info mt-4">
-            <p className="text-[0.68rem] tracking-[0.25em] text-vermilion uppercase">{c.prefix ?? 'Lệnh bài'}</p>
+            <p className="text-[0.76rem] font-medium tracking-[0.22em] text-vermilion uppercase">{c.prefix ?? 'Lệnh bài'}</p>
             <p className="display text-[clamp(2.4rem,4.4vw,4.6rem)] !font-bold leading-[0.92]">{c.role}</p>
-            <p className="mt-3 font-semibold">{c.skill}</p>
-            <p className="mt-1 text-[0.95rem] leading-snug">{c.text}</p>
+            <p className="mt-3 font-bold text-[1.1rem] leading-snug">{c.skill}</p>
+            <p className="mt-1 text-[1rem] leading-relaxed font-normal">{c.text}</p>
           </div>
         ) : (
           <p className="display mt-4 text-[clamp(2.4rem,4.4vw,4.6rem)] !font-bold leading-[0.92]">
@@ -91,7 +92,7 @@ export default function Cover() {
         )}
       </div>
 
-      <p className="absolute right-[clamp(1rem,3vw,2.5rem)] bottom-[4svh] z-20 hidden text-right text-[0.68rem] tracking-[0.25em] uppercase md:block">
+      <p className="absolute right-[clamp(1rem,3vw,2.5rem)] bottom-[4svh] z-20 hidden text-right text-[0.76rem] font-medium tracking-[0.25em] uppercase md:block">
         {open ? 'Rê chuột lên từng lá bài' : 'Cuộn để mở hộp'}
       </p>
 

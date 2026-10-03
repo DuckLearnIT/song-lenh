@@ -17,16 +17,16 @@ export default function Hero() {
   useLayoutEffect(() => {
     if (reduced) return
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 1.45 })
-      tl.from('.sun', { scale: 0.2, opacity: 0, duration: 1.8 })
-        .from('.band', { yPercent: 100, duration: 1.6, stagger: 0.12 }, 0.1)
-        .from('.hero-title .ch', { yPercent: 115, duration: 1.3, stagger: 0.05 }, 0.15)
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.9 })
+      tl.from('.sun', { scale: 0.2, opacity: 0, duration: 1.3 })
+        .from('.band', { yPercent: 100, duration: 1.2, stagger: 0.08 }, 0.08)
+        .from('.hero-title .ch', { yPercent: 115, duration: 1.0, stagger: 0.04 }, 0.1)
         .from(
           '.hero-card',
-          { yPercent: 70, opacity: 0, rotate: 0, duration: 1.5, stagger: 0.12 },
-          0.35,
+          { yPercent: 70, opacity: 0, rotate: 0, duration: 1.2, stagger: 0.08 },
+          0.25,
         )
-        .from('.hero-fade', { opacity: 0, y: 16, duration: 1, stagger: 0.1 }, 0.9)
+        .from('.hero-fade', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.65)
 
       // scroll: title drifts apart, fan lifts
       gsap.to('.title-a', {
@@ -151,24 +151,24 @@ export default function Hero() {
 
       {/* copy */}
       <div className="hero-fade absolute left-[clamp(1rem,3vw,2.5rem)] bottom-[clamp(7rem,21vh,13rem)] z-20 max-w-[22rem] max-lg:hidden">
-        <p className="font-serif italic text-[1.35rem] leading-snug font-light">
+        <p className="font-serif italic text-[1.35rem] leading-relaxed font-normal">
           Sáu lá lệnh, một dòng sông. Mỗi lệnh ban ra, cả đội hình đổi hướng.
         </p>
-        <p className="mt-4 text-[0.68rem] tracking-[0.22em] uppercase opacity-70">
+        <p className="mt-4 text-[0.76rem] tracking-[0.22em] uppercase opacity-75 font-medium">
           Board game chiến thuật hợp tác · Việt Nam
         </p>
       </div>
 
       <div className="hero-fade relative z-20 mt-8 hidden max-lg:block max-w-[18rem]">
-        <p className="font-serif italic text-lg leading-snug font-light">
+        <p className="font-serif italic text-lg leading-relaxed font-normal">
           Sáu lá lệnh, một dòng sông.
         </p>
-        <p className="mt-3 text-[0.62rem] tracking-[0.22em] uppercase opacity-70">
+        <p className="mt-3 text-[0.72rem] tracking-[0.22em] uppercase opacity-75 font-medium">
           Board game chiến thuật · Việt Nam
         </p>
       </div>
 
-      <div className="hero-fade absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.65rem] tracking-[0.25em] uppercase max-lg:hidden">
+      <div className="hero-fade absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.74rem] tracking-[0.25em] uppercase max-lg:hidden">
         <span>Cuộn để ra quân</span>
         <span className="block h-px w-14 bg-ink origin-left animate-pulse" />
       </div>

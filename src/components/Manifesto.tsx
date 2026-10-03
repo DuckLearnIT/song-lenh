@@ -73,7 +73,7 @@ export default function Manifesto() {
       className="manifesto-ground relative overflow-hidden pt-[clamp(6rem,14vw,12rem)] pb-[clamp(5rem,10vw,10rem)]"
     >
       <div className="grid grid-cols-12 gap-x-4 items-start px-[clamp(1rem,3vw,2.5rem)]">
-        <p className="col-span-12 lg:col-span-2 text-[0.68rem] tracking-[0.25em] uppercase mb-10 lg:mb-0 lg:pt-4">
+        <p className="col-span-12 lg:col-span-2 text-[0.76rem] font-medium tracking-[0.25em] uppercase mb-10 lg:mb-0 lg:pt-4">
           <span className="text-vermilion">01</span> — Lời lệnh
         </p>
 

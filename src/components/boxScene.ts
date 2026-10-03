@@ -58,7 +58,7 @@ export function createBoxScene({ canvas, cover, cards, extra, onHover }: Opts) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.05
   renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap
+  renderer.shadowMap.type = THREE.PCFShadowMap
 
   const scene = new THREE.Scene()
   const pmrem = new THREE.PMREMGenerator(renderer)
@@ -71,7 +71,7 @@ export function createBoxScene({ canvas, cover, cards, extra, onHover }: Opts) {
   const sun = new THREE.DirectionalLight(0xfff2dd, 2.6)
   sun.position.set(-3, 11, 4)
   sun.castShadow = true
-  sun.shadow.mapSize.set(2048, 2048)
+  sun.shadow.mapSize.set(1024, 1024)
   sun.shadow.camera.left = -6
   sun.shadow.camera.right = 6
   sun.shadow.camera.top = 6

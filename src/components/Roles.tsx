@@ -22,7 +22,7 @@ function Badge({ image }: { image: string }) {
 function Info({ card, index }: { card: CardData; index: number }) {
   return (
     <div className="info col-start-1 row-start-1" data-i={index}>
-      <p className="info-rest text-[0.68rem] tracking-[0.3em] uppercase" style={{ color: card.accent }}>
+      <p className="info-rest text-[0.76rem] font-medium tracking-[0.25em] uppercase" style={{ color: card.accent }}>
         {card.prefix ? `${card.prefix} · ` : ''}Kỹ năng
       </p>
       <h3
@@ -37,12 +37,12 @@ function Info({ card, index }: { card: CardData; index: number }) {
           <p className="display !font-bold !leading-[1.05] !tracking-[0.005em] text-[clamp(1.2rem,2.2vw,2.1rem)]">
             {card.skill}
           </p>
-          <p className="mt-2 text-[clamp(0.85rem,1vw,1rem)] leading-relaxed text-card/80 font-light">
+          <p className="mt-2 text-[clamp(0.96rem,1.15vw,1.08rem)] leading-relaxed text-card/90 font-normal">
             {card.text}
           </p>
         </div>
       </div>
-      <p className="info-rest mt-[clamp(1rem,3vh,2.2rem)] font-serif italic font-light text-[clamp(1rem,1.5vw,1.4rem)] text-card/60">
+      <p className="info-rest mt-[clamp(1rem,3vh,2.2rem)] font-serif italic font-normal text-[clamp(1.1rem,1.6vw,1.45rem)] leading-relaxed text-card/75">
         “{card.quote}”
       </p>
     </div>
@@ -213,13 +213,13 @@ export default function Roles() {
           <span key={c.id} className="tick block size-2 rotate-45" style={{ background: 'var(--acc)' }} />
         ))}
       </div>
-      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.65rem] font-medium tracking-[0.3em] text-card/70 lg:hidden">
+      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] top-16 lg:top-20 z-20 text-[0.74rem] font-medium tracking-[0.3em] text-card/80 lg:hidden">
         SÁU LÁ LỆNH
       </p>
-      <p className="absolute right-[clamp(1rem,3vw,2.5rem)] bottom-5 z-20 text-sm font-medium tracking-[0.2em] text-card/70">
-        <span ref={counter} className="text-card">01</span> / {String(n).padStart(2, '0')}
+      <p className="absolute right-[clamp(1rem,3vw,2.5rem)] bottom-5 z-20 text-sm font-medium tracking-[0.2em] text-card/80">
+        <span ref={counter} className="text-card font-bold">01</span> / {String(n).padStart(2, '0')}
       </p>
-      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] bottom-5 z-20 hidden text-[0.65rem] tracking-[0.25em] uppercase text-card/60 lg:block">
+      <p className="absolute left-[clamp(1rem,3vw,2.5rem)] bottom-5 z-20 hidden text-[0.74rem] font-medium tracking-[0.25em] uppercase text-card/70 lg:block">
         Cuộn để chia bài
       </p>
     </section>

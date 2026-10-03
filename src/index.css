@@ -10,11 +10,56 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaBook.woff2') format('woff2'),
+       url('./assets/fonts/SFUFuturaBook.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaRegular.woff2') format('woff2'),
+       url('./assets/fonts/SFUFuturaRegular.TTF') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaLight.woff2') format('woff2'),
+       url('./assets/fonts/SFUFuturaLight.TTF') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaBold.woff2') format('woff2'),
+       url('./assets/fonts/SFUFuturaBold.TTF') format('truetype');
+  font-weight: 600 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaBookOblique.woff2') format('woff2'),
+       url('./assets/fonts/SFUFuturaBookOblique.TTF') format('truetype');
+  font-weight: 300 500;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
   --font-display: 'NVN Yellost', Georgia, serif;
   --font-heading: 'NVN Yellost', Georgia, serif;
-  --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
-  --font-serif: 'Be Vietnam Pro', Georgia, serif;
+  --font-body: 'Futura', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Futura', system-ui, sans-serif;
 
   --color-paper: #ecdcc0;
   --color-card: #f6e9d7;
@@ -43,6 +88,9 @@ body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.625;
+  letter-spacing: 0.015em;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   scrollbar-width: none;
