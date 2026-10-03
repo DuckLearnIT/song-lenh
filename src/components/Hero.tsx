@@ -10,61 +10,63 @@ const fan = [
   { id: 'nha-tuong', x: '0%', y: '-6%', r: -1.5, depth: 34 },
 ]
 
-export default function Hero() {
+export default function Hero({ ready = false }: { ready?: boolean }) {
   const root = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
 
   useLayoutEffect(() => {
     if (reduced) return
+    if (!ready) return
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.9 })
-      tl.from('.sun-core', { scale: 0.2, opacity: 0, duration: 1.3 })
-        .from('.band', { yPercent: 100, duration: 1.2, stagger: 0.08 }, 0.08)
-        .from('.hero-title .ch', { yPercent: 115, duration: 1.0, stagger: 0.04 }, 0.1)
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.05 })
+      tl.from('.sun-core', { scale: 0.2, opacity: 0, duration: 1.2 })
+        .from('.band', { yPercent: 100, duration: 1.1, stagger: 0.08 }, 0.06)
+        .from('.hero-title .ch', { yPercent: 115, duration: 1.0, stagger: 0.04 }, 0.08)
         .from(
           '.hero-card',
           { yPercent: 70, opacity: 0, rotate: 0, duration: 1.2, stagger: 0.08 },
-          0.25,
+          0.2,
         )
-        .from('.hero-fade', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.65)
+        .from('.hero-fade', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.5)
 
-      // scroll transition: elements depart, sun expands to engulf screen seamlessly into Cover
+      // scroll transition: elements depart, sun expands to engulf screen completely into #ffb627 before unpinning
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
           start: 'top top',
-          end: '+=100%',
+          end: '+=130%',
           pin: true,
-          pinSpacing: false,
+          pinSpacing: true,
           scrub: 0.6,
         },
       })
 
-      // 1. Elements depart / fade out (target parent containers to avoid conflict with intro tl)
+      // 1. Elements depart / fade out cleanly (autoAlpha ensures no invisible layout interference)
       scrollTl
-        .to('.hero-depart', { opacity: 0, y: -24, duration: 0.45, ease: 'power2.in' }, 0)
-        .to('.title-a', { xPercent: -50, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
-        .to('.title-b', { xPercent: 50, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
-        .to('.fan', { xPercent: 35, yPercent: 60, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
-        .to('.hero-rivers', { yPercent: 130, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
+        .to('.hero-depart', { autoAlpha: 0, y: -24, duration: 0.35, ease: 'power2.in' }, 0)
+        .to('.title-a', { xPercent: -50, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, 0)
+        .to('.title-b', { xPercent: 50, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, 0)
+        .to('.fan', { xPercent: 30, yPercent: 60, autoAlpha: 0, duration: 0.55, ease: 'power2.in' }, 0)
+        .to('.hero-rivers', { yPercent: 130, autoAlpha: 0, duration: 0.55, ease: 'power2.in' }, 0)
 
-      // 2. Sun expands dramatically to cover entire viewport and transition to #ffb627
+      // 2. Sun expands dramatically until it covers the ENTIRE viewport and transitions to #ffb627
       scrollTl
         .to(
           '.sun',
           {
-            scale: 25,
+            scale: 35,
             xPercent: -45,
-            yPercent: 22,
+            yPercent: 20,
             boxShadow: '0 0 0 0px transparent, 0 0 0 0px transparent',
-            duration: 1.7,
+            duration: 1.4,
             ease: 'power2.inOut',
           },
-          0.1,
+          0,
         )
-        .to('.sun-fill', { opacity: 1, duration: 1.1, ease: 'power2.inOut' }, 0.5)
-        .to(root.current, { backgroundColor: '#ffb627', duration: 0.8, ease: 'none' }, 0.9)
-        .to({}, { duration: 0.2 })
+        .to('.sun-fill', { opacity: 1, duration: 0.9, ease: 'power2.inOut' }, 0.25)
+        .to(root.current, { backgroundColor: '#ffb627', duration: 0.7, ease: 'none' }, 0.6)
+        .to({}, { duration: 0.4 }) // Pure solid #ffb627 hold period before Hero unpins
 
       // pointer parallax (fine pointers only, active near top)
       const mm = gsap.matchMedia()
@@ -91,13 +93,13 @@ export default function Hero() {
       })
     }, root)
     return () => ctx.revert()
-  }, [reduced])
+  }, [reduced, ready])
 
   return (
     <section
       ref={root}
       id="top"
-      className="hero-ground relative isolate min-h-svh overflow-hidden px-[clamp(1rem,3vw,2.5rem)] pt-20 pb-10"
+      className="hero-ground relative isolate h-svh overflow-hidden px-[clamp(1rem,3vw,2.5rem)] pt-20 pb-10"
     >
       {/* sun disc */}
       <div
@@ -133,10 +135,10 @@ export default function Hero() {
       {/* title */}
       <h1 className="hero-title display relative z-0 select-none text-[clamp(4.5rem,21vw,26rem)] max-lg:mt-6">
         <span className="title-a block">
-          <SplitChars text="Sông" />
+          <SplitChars text="Thủy" />
         </span>
         <span className="title-b block pl-[22vw] text-vermilion max-lg:pl-[16vw]">
-          <SplitChars text="Lệnh" />
+          <SplitChars text="Trận" />
         </span>
       </h1>
 

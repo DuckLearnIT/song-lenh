@@ -5,7 +5,7 @@ export default function Header() {
         href="#top"
         className="pointer-events-auto display !text-2xl !font-bold tracking-[0.04em]"
       >
-        Sông Lệnh
+        Thủy Trận
       </a>
       <a
         href="#nhan-lenh"

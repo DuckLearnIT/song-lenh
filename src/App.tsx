@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Header from './components/Header'
@@ -19,6 +19,18 @@ if (typeof window !== 'undefined') {
 }
 
 export default function App() {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (!ready) {
+      document.body.style.overflow = 'hidden'
+      window.scrollTo(0, 0)
+    } else {
+      document.body.style.overflow = ''
+      ScrollTrigger.refresh()
+    }
+  }, [ready])
+
   useEffect(() => {
     const refresh = () => ScrollTrigger.refresh()
     document.fonts?.ready.then(refresh)
@@ -28,10 +40,10 @@ export default function App() {
 
   return (
     <main className="grain relative">
-      <Curtain />
+      <Curtain onReady={() => setReady(true)} />
       <Cursor />
       <Header />
-      <Hero />
+      <Hero ready={ready} />
       <Cover />
       <Manifesto />
       <Roles />
@@ -41,3 +53,4 @@ export default function App() {
     </main>
   )
 }
+
