@@ -3,6 +3,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 export type BoxState = {
+  rootY: number
   elev: number
   yaw: number
   zoom: number
@@ -23,7 +24,7 @@ type Opts = {
   cover: string
   cards: string[]
   extra: string[]
-  onHover: (i: number | null) => void
+  onHover?: (i: number | null) => void
 }
 
 const W = 3
@@ -37,6 +38,7 @@ export function createBoxScene({ canvas, cover, cards, extra, onHover }: Opts) {
   const n = cards.length
   const mid = (n - 1) / 2
   const state: BoxState = {
+    rootY: 0,
     elev: 1.12,
     yaw: -0.32,
     zoom: 1,
@@ -322,6 +324,7 @@ export function createBoxScene({ canvas, cover, cards, extra, onHover }: Opts) {
     lid.position.y = HB + 0.004 + state.lift
     sun.castShadow = state.lift < 3.5 && state.rise < 0.05
     base.position.y = -state.drop
+    root.position.y = state.rootY
     ;(ground.material as THREE.ShadowMaterial).opacity = 0.2 * (1 - Math.min(1, state.rise * 2))
     lid.rotation.x = state.lidTilt
     lid.rotation.y = state.lidTurn
@@ -341,12 +344,14 @@ export function createBoxScene({ canvas, cover, cards, extra, onHover }: Opts) {
   const setHover = (i: number | null) => {
     if (i === hovered) return
     hovered = i
-    canvas.style.cursor = i === null ? 'default' : 'pointer'
-    onHover(i)
+    if (onHover) {
+      canvas.style.cursor = i === null ? 'default' : 'pointer'
+      onHover(i)
+    }
   }
 
   const pick = () => {
-    if (!hasPointer || state.fan[n - 1] < 0.85 || state.swap > 0.02) return setHover(null)
+    if (!onHover || !hasPointer || state.fan[n - 1] < 0.85 || state.swap > 0.02) return setHover(null)
     ray.setFromCamera(ptr, camera)
     const hit = ray.intersectObjects(cardMeshes, false)[0]
     setHover(hit ? (hit.object.userData.i as number) : null)

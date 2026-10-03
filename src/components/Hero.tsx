@@ -18,7 +18,7 @@ export default function Hero() {
     if (reduced) return
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.9 })
-      tl.from('.sun', { scale: 0.2, opacity: 0, duration: 1.3 })
+      tl.from('.sun-core', { scale: 0.2, opacity: 0, duration: 1.3 })
         .from('.band', { yPercent: 100, duration: 1.2, stagger: 0.08 }, 0.08)
         .from('.hero-title .ch', { yPercent: 115, duration: 1.0, stagger: 0.04 }, 0.1)
         .from(
@@ -28,38 +28,45 @@ export default function Hero() {
         )
         .from('.hero-fade', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.65)
 
-      // scroll: title drifts apart, fan lifts
-      gsap.to('.title-a', {
-        xPercent: -8,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.title-b', {
-        xPercent: 8,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.fan', {
-        yPercent: -14,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.band-1', {
-        xPercent: -6,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.band-2', {
-        xPercent: 5,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.band-3', {
-        xPercent: -3,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      })
-      gsap.to('.sun', {
-        yPercent: 20,
-        scale: 1.15,
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
+      // scroll transition: elements depart, sun expands to engulf screen seamlessly into Cover
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top top',
+          end: '+=100%',
+          pin: true,
+          pinSpacing: false,
+          scrub: 0.6,
+        },
       })
 
-      // pointer parallax (fine pointers only)
+      // 1. Elements depart / fade out (target parent containers to avoid conflict with intro tl)
+      scrollTl
+        .to('.hero-depart', { opacity: 0, y: -24, duration: 0.45, ease: 'power2.in' }, 0)
+        .to('.title-a', { xPercent: -50, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
+        .to('.title-b', { xPercent: 50, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
+        .to('.fan', { xPercent: 35, yPercent: 60, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
+        .to('.hero-rivers', { yPercent: 130, opacity: 0, duration: 0.8, ease: 'power2.in' }, 0)
+
+      // 2. Sun expands dramatically to cover entire viewport and transition to #ffb627
+      scrollTl
+        .to(
+          '.sun',
+          {
+            scale: 25,
+            xPercent: -45,
+            yPercent: 22,
+            boxShadow: '0 0 0 0px transparent, 0 0 0 0px transparent',
+            duration: 1.7,
+            ease: 'power2.inOut',
+          },
+          0.1,
+        )
+        .to('.sun-fill', { opacity: 1, duration: 1.1, ease: 'power2.inOut' }, 0.5)
+        .to(root.current, { backgroundColor: '#ffb627', duration: 0.8, ease: 'none' }, 0.9)
+        .to({}, { duration: 0.2 })
+
+      // pointer parallax (fine pointers only, active near top)
       const mm = gsap.matchMedia()
       mm.add('(hover: hover) and (pointer: fine)', () => {
         const layers = gsap.utils.toArray<HTMLElement>('.hero-card')
@@ -70,6 +77,7 @@ export default function Hero() {
         }))
         const sx = gsap.quickTo('.sun', 'x', { duration: 1.4, ease: 'power3' })
         const onMove = (e: PointerEvent) => {
+          if (scrollTl.scrollTrigger && scrollTl.scrollTrigger.progress > 0.08) return
           const nx = e.clientX / window.innerWidth - 0.5
           const ny = e.clientY / window.innerHeight - 0.5
           setters.forEach((s) => {
@@ -93,17 +101,24 @@ export default function Hero() {
     >
       {/* sun disc */}
       <div
-        className="sun absolute -z-10 rounded-full right-[-8vw] top-[14vh] size-[clamp(260px,52vw,780px)] max-lg:right-[-20vw] max-lg:top-[42vh]"
+        className="sun pointer-events-none absolute -z-10 rounded-full right-[-8vw] top-[14vh] size-[clamp(260px,52vw,780px)] max-lg:right-[-20vw] max-lg:top-[42vh]"
         style={{
-          background:
-            'radial-gradient(circle at 38% 34%, #f7cf6a 0%, #e8a93a 42%, #c9782a 78%, #b5542a 100%)',
           boxShadow: '0 0 0 1px rgba(181,54,43,.25), 0 0 0 clamp(14px,2.2vw,34px) rgba(217,154,43,.16)',
         }}
         aria-hidden="true"
-      />
+      >
+        <div
+          className="sun-core size-full rounded-full"
+          style={{
+            background:
+              'radial-gradient(circle at 38% 34%, #f7cf6a 0%, #e8a93a 42%, #c9782a 78%, #b5542a 100%)',
+          }}
+        />
+        <div className="sun-fill absolute inset-0 rounded-full bg-[#ffb627] opacity-0" />
+      </div>
 
       {/* river bands */}
-      <div className="absolute inset-x-0 bottom-0 z-[5] h-[clamp(90px,17vh,190px)] overflow-hidden" aria-hidden="true">
+      <div className="hero-rivers absolute inset-x-0 bottom-0 z-[5] h-[clamp(90px,17vh,190px)] overflow-hidden" aria-hidden="true">
         {[
           { c: '#15345f', d: 'M-80 92C200 36 380 150 640 98S1040 36 1240 88 1440 112 1520 76V200H-80Z', k: 'band-1' },
           { c: '#b5362b', d: 'M-80 132C240 92 420 172 700 132S1100 92 1520 142V200H-80Z', k: 'band-2' },
@@ -150,27 +165,33 @@ export default function Hero() {
       </div>
 
       {/* copy */}
-      <div className="hero-fade absolute left-[clamp(1rem,3vw,2.5rem)] bottom-[clamp(7rem,21vh,13rem)] z-20 max-w-[22rem] max-lg:hidden">
-        <p className="font-serif italic text-[1.35rem] leading-relaxed font-normal">
-          Sáu lá lệnh, một dòng sông. Mỗi lệnh ban ra, cả đội hình đổi hướng.
-        </p>
-        <p className="mt-4 text-[0.76rem] tracking-[0.22em] uppercase opacity-75 font-medium">
-          Board game chiến thuật hợp tác · Việt Nam
-        </p>
+      <div className="hero-depart absolute left-[clamp(1rem,3vw,2.5rem)] bottom-[clamp(7rem,21vh,13rem)] z-20 max-w-[22rem] max-lg:hidden">
+        <div className="hero-fade">
+          <p className="font-serif italic text-[1.35rem] leading-relaxed font-normal">
+            Sáu lá lệnh, một dòng sông. Mỗi lệnh ban ra, cả đội hình đổi hướng.
+          </p>
+          <p className="mt-4 text-[0.76rem] tracking-[0.22em] uppercase opacity-75 font-medium">
+            Board game chiến thuật hợp tác · Việt Nam
+          </p>
+        </div>
       </div>
 
-      <div className="hero-fade relative z-20 mt-8 hidden max-lg:block max-w-[18rem]">
-        <p className="font-serif italic text-lg leading-relaxed font-normal">
-          Sáu lá lệnh, một dòng sông.
-        </p>
-        <p className="mt-3 text-[0.72rem] tracking-[0.22em] uppercase opacity-75 font-medium">
-          Board game chiến thuật · Việt Nam
-        </p>
+      <div className="hero-depart relative z-20 mt-8 hidden max-lg:block max-w-[18rem]">
+        <div className="hero-fade">
+          <p className="font-serif italic text-lg leading-relaxed font-normal">
+            Sáu lá lệnh, một dòng sông.
+          </p>
+          <p className="mt-3 text-[0.72rem] tracking-[0.22em] uppercase opacity-75 font-medium">
+            Board game chiến thuật · Việt Nam
+          </p>
+        </div>
       </div>
 
-      <div className="hero-fade absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.74rem] tracking-[0.25em] uppercase max-lg:hidden">
-        <span>Cuộn để ra quân</span>
-        <span className="block h-px w-14 bg-ink origin-left animate-pulse" />
+      <div className="hero-depart absolute right-[clamp(1rem,3vw,2.5rem)] top-20 z-20 flex items-center gap-3 text-[0.74rem] tracking-[0.25em] uppercase max-lg:hidden">
+        <div className="hero-fade flex items-center gap-3">
+          <span>Cuộn để ra quân</span>
+          <span className="block h-px w-14 bg-ink origin-left animate-pulse" />
+        </div>
       </div>
     </section>
   )
