@@ -88,13 +88,7 @@ export default function Strategies() {
           end: () => `+=${(n - 1) * window.innerHeight * 0.95}`,
           pin: true,
           scrub: 0.6,
-          anticipatePin: 1,
           invalidateOnRefresh: true,
-          snap: {
-            snapTo: 1 / (n - 1),
-            duration: { min: 0.25, max: 0.6 },
-            ease: 'power2.inOut',
-          },
         },
       })
       trigger.current = tl.scrollTrigger as ScrollTrigger

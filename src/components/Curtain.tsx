@@ -42,31 +42,25 @@ export default function Curtain({ onReady }: { onReady?: () => void }) {
       if (isComplete) return
       isComplete = true
 
-      gsap.to(progressObj.current, {
-        value: 100,
-        duration: 0.4,
-        ease: 'power2.out',
-        onUpdate: () => setPercent(Math.round(progressObj.current.value)),
-        onComplete: () => {
-          setStatus('Sẵn sàng ra quân!')
-          setTimeout(() => {
-            if (!root.current) {
-              setDone(true)
-              onReady?.()
-              return
-            }
-            const tl = gsap.timeline({
-              onComplete: () => {
-                setDone(true)
-                onReady?.()
-              },
-            })
-            tl.to('.cu-loader', { opacity: 0, y: -12, duration: 0.35, ease: 'power2.in' })
-              .to('.cu-inner', { yPercent: -30, opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.15)
-              .to(root.current, { yPercent: -125, duration: 0.7, ease: 'expo.inOut' }, 0.25)
-          }, 350)
-        },
-      })
+      setPercent(100)
+      setStatus('Sẵn sàng ra quân!')
+
+      setTimeout(() => {
+        if (!root.current) {
+          setDone(true)
+          onReady?.()
+          return
+        }
+        const tl = gsap.timeline({
+          onComplete: () => {
+            setDone(true)
+            onReady?.()
+          },
+        })
+        tl.to('.cu-loader', { opacity: 0, y: -12, duration: 0.35, ease: 'power2.in' })
+          .to('.cu-inner', { yPercent: -30, opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.15)
+          .to(root.current, { yPercent: -125, duration: 0.7, ease: 'expo.inOut' }, 0.25)
+      }, 300)
     }
 
     const checkComplete = () => {
@@ -88,18 +82,27 @@ export default function Curtain({ onReady }: { onReady?: () => void }) {
       checkComplete()
     }
 
-    // 2. Preload all card & cover textures
+    // 2. Preload all card & cover textures (with cached image check)
     allImages.forEach((src) => {
       const img = new Image()
+      let handled = false
+      const onAssetDone = () => {
+        if (handled) return
+        handled = true
+        checkComplete()
+      }
+      img.onload = onAssetDone
+      img.onerror = onAssetDone
       img.src = src
-      img.onload = checkComplete
-      img.onerror = checkComplete
+      if (img.complete) {
+        onAssetDone()
+      }
     })
 
-    // 3. Fallback safety timer: in case of poor network, max 6s then force open
+    // 3. Fallback safety timer: in case of poor network, max 2.5s then force open
     const safety = setTimeout(() => {
       triggerOpening()
-    }, 6000)
+    }, 2500)
 
     return () => clearTimeout(safety)
   }, [reduced])

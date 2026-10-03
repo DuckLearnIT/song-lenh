@@ -27,6 +27,7 @@ export default function App() {
       window.scrollTo(0, 0)
     } else {
       document.body.style.overflow = ''
+      ScrollTrigger.sort()
       ScrollTrigger.refresh()
     }
   }, [ready])

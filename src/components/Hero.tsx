@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import SplitChars from './SplitChars'
 import { byId } from '../data/cards'
@@ -12,14 +12,15 @@ const fan = [
 
 export default function Hero({ ready = false }: { ready?: boolean }) {
   const root = useRef<HTMLElement>(null)
+  const introTlRef = useRef<gsap.core.Timeline | null>(null)
   const reduced = useReducedMotion()
 
   useLayoutEffect(() => {
     if (reduced) return
-    if (!ready) return
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, delay: 0.05 })
+      // 1. Intro timeline (starts paused, plays smoothly when preloader signals ready)
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, paused: true })
       tl.from('.sun-core', { scale: 0.2, opacity: 0, duration: 1.2 })
         .from('.band', { yPercent: 100, duration: 1.1, stagger: 0.08 }, 0.06)
         .from('.hero-title .ch', { yPercent: 115, duration: 1.0, stagger: 0.04 }, 0.08)
@@ -30,7 +31,9 @@ export default function Hero({ ready = false }: { ready?: boolean }) {
         )
         .from('.hero-fade', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.5)
 
-      // scroll transition: elements depart, sun expands to engulf screen completely into #ffb627 before unpinning
+      introTlRef.current = tl
+
+      // 2. Scroll transition: registered immediately on mount in natural DOM order!
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
@@ -42,7 +45,7 @@ export default function Hero({ ready = false }: { ready?: boolean }) {
         },
       })
 
-      // 1. Elements depart / fade out cleanly (autoAlpha ensures no invisible layout interference)
+      // Elements depart / fade out cleanly (autoAlpha ensures no invisible layout interference)
       scrollTl
         .to('.hero-depart', { autoAlpha: 0, y: -24, duration: 0.35, ease: 'power2.in' }, 0)
         .to('.title-a', { xPercent: -50, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, 0)
@@ -50,7 +53,7 @@ export default function Hero({ ready = false }: { ready?: boolean }) {
         .to('.fan', { xPercent: 30, yPercent: 60, autoAlpha: 0, duration: 0.55, ease: 'power2.in' }, 0)
         .to('.hero-rivers', { yPercent: 130, autoAlpha: 0, duration: 0.55, ease: 'power2.in' }, 0)
 
-      // 2. Sun expands dramatically until it covers the ENTIRE viewport and transitions to #ffb627
+      // Sun expands dramatically until it covers the ENTIRE viewport and transitions to #ffb627
       scrollTl
         .to(
           '.sun',
@@ -68,7 +71,7 @@ export default function Hero({ ready = false }: { ready?: boolean }) {
         .to(root.current, { backgroundColor: '#ffb627', duration: 0.7, ease: 'none' }, 0.6)
         .to({}, { duration: 0.4 }) // Pure solid #ffb627 hold period before Hero unpins
 
-      // pointer parallax (fine pointers only, active near top)
+      // Pointer parallax (fine pointers only, active near top)
       const mm = gsap.matchMedia()
       mm.add('(hover: hover) and (pointer: fine)', () => {
         const layers = gsap.utils.toArray<HTMLElement>('.hero-card')
@@ -93,7 +96,13 @@ export default function Hero({ ready = false }: { ready?: boolean }) {
       })
     }, root)
     return () => ctx.revert()
-  }, [reduced, ready])
+  }, [reduced])
+
+  useEffect(() => {
+    if (ready && introTlRef.current) {
+      introTlRef.current.play()
+    }
+  }, [ready])
 
   return (
     <section
